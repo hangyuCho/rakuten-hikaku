@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "SmartFontUI";
+  font-weight: 400;
+  font-style: normal;
+  src: url("SmartFontUI.otf") format("opentype");
+}
+@font-face {
+  font-family: "craftmincho";
+  font-weight: 400;
+  font-style: normal;
+  src: url("craftmincho.otf") format("opentype");
+}
+html {
+  font-family: "SmartFontUI", "craftmincho";
+}
