@@ -1,6 +1,13 @@
 export interface HotelInfo {
-  hotelBasicInfo: HotelBasicInfo;
-  hotelRatingInfo: HotelRatingInfo;
+  hotelBasicInfo: HotelBasicInfo | null;
+  hotelRatingInfo: HotelRatingInfo | null;
+}
+
+export class HotelInfoImpl implements HotelInfo {
+  constructor(
+    public readonly hotelBasicInfo: HotelBasicInfo,
+    public readonly hotelRatingInfo: HotelRatingInfo
+  ) {}
 }
 
 export interface HotelRatingInfo {

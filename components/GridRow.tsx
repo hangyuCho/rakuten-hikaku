@@ -1,74 +1,133 @@
 "use client";
+import { HotelInfo, HotelBasicInfo } from "@/types";
 import Image from "next/image";
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { HotelBasicInfo, HotelRatingInfo } from "@/types";
-const init = async (
-  setHotelBasicInfo: Dispatch<SetStateAction<HotelBasicInfo | undefined>>,
-  setHotelRatingInfo: Dispatch<SetStateAction<HotelRatingInfo | undefined>>,
-  hotelNo: number
-) => {
-  const res: Response = await fetch(`/api/rakuten/travel?hotelNo=${hotelNo}`);
-  const data = await res.json();
-  const hotels = data.hotels[0];
-  setHotelBasicInfo(hotels.hotel[0].hotelBasicInfo);
-  setHotelRatingInfo(hotels.hotel[1].hotelRatingInfo);
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import Leaflet from "leaflet";
+
+interface GridRowProps {
+  parentClassName?: string;
+  hotelInfos: HotelInfo[];
+  itemName: string;
+  isHtml?: boolean;
+  isImage?: boolean;
+  isMap?: boolean;
+  imageHeight?: number;
+  imageWidth?: number;
+  prefix?: any;
+  postfix?: any;
+  rowHight?: number;
+}
+
+const getItem = (columnItem: HotelInfo, itemName: string): string | number => {
+  if (itemName == "latitude" || itemName == "longitude") {
+    return columnItem && columnItem.hotelBasicInfo
+      ? `${columnItem.hotelBasicInfo["latitude"]},${columnItem.hotelBasicInfo["longitude"]}`
+      : "";
+  } else
+    return columnItem && columnItem.hotelBasicInfo
+      ? columnItem.hotelBasicInfo[itemName as keyof HotelBasicInfo]
+      : "";
 };
 
-const GridRow = (props: any) => {
-  const [hotelBasicInfo, setHotelBasicInfo] = useState<HotelBasicInfo>();
-  const [hotelRatingInfo, setHotelRatingInfo] = useState<HotelRatingInfo>();
-  useEffect(() => {
-    init(setHotelBasicInfo, setHotelRatingInfo, props.hotelNo);
-  }, []);
-  return !!hotelBasicInfo ? (
-    <div
-      className={`${props.className} grid items-start justify-items-center mt-10 gap-2 p-4 break-all`}
-    >
-      <div role="row" className="flex flex-col items-center">
-        <div className="flex h-32">
-          <Image
-            src={hotelBasicInfo.hotelImageUrl}
-            className="object-contain"
-            width={250}
-            height={250}
-            alt="hotelImageUrl"
-          />
-        </div>
-        <div className="flex h-96">
-          <Image
-            src={hotelBasicInfo.roomImageUrl}
-            className="object-contain"
-            width={250}
-            height={100}
-            alt="hotelImageUrl"
-          />
-        </div>
+const GridRow = ({
+  parentClassName,
+  hotelInfos,
+  itemName,
+  isHtml,
+  isImage,
+  imageHeight,
+  imageWidth,
+  prefix,
+  postfix,
+  rowHight,
+  isMap,
+}: GridRowProps) => {
+  if (!Array.isArray(hotelInfos)) {
+    return <div>{JSON.stringify(hotelInfos)}</div>;
+  }
+  const [columnItem1, columnItem2, columnItem3]: HotelInfo[] = hotelInfos;
+  const item1: string | number = getItem(columnItem1, itemName);
+  const item2: string | number = getItem(columnItem2, itemName);
+  const item3: string | number = getItem(columnItem3, itemName);
+
+  const rowStyle = `w-1/4 text-center px-4 text-wrap h-[${rowHight ?? 10}px]`;
+
+  Leaflet.Marker.prototype.options.icon = Leaflet.icon({
+    iconUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  });
+  return (
+    item1 && (
+      <div
+        role="row"
+        className={`${
+          parentClassName ? parentClassName : ""
+        } flex w-full gap-6 justify-center items-start`}
+      >
+        {isHtml ? (
+          <>
+            <div
+              className="w-1/4"
+              dangerouslySetInnerHTML={{ __html: item1 }}
+            />
+            <div
+              className="w-1/4"
+              dangerouslySetInnerHTML={{ __html: item2 }}
+            />
+            <div
+              className="w-1/4"
+              dangerouslySetInnerHTML={{ __html: item3 }}
+            />
+          </>
+        ) : isMap ? (
+          <>
+            <div className="text-center h-screen">{item1}</div>
+          </>
+        ) : isImage ? (
+          <>
+            <Image
+              className="object-contain w-1/4"
+              src={item1}
+              alt="item"
+              height={imageHeight ?? 100}
+              width={imageWidth ?? 200}
+            />
+            <Image
+              className="object-contain w-1/4"
+              src={item2}
+              alt="item"
+              height={imageHeight ?? 100}
+              width={imageWidth ?? 200}
+            />
+            <Image
+              className="object-contain w-1/4"
+              src={item3}
+              alt="item"
+              height={imageHeight ?? 100}
+              width={imageWidth ?? 200}
+            />
+          </>
+        ) : (
+          <>
+            <div className={rowStyle}>
+              {prefix}
+              {item1}
+              {postfix}
+            </div>
+            <div className={rowStyle}>
+              {prefix}
+              {item2}
+              {postfix}
+            </div>
+            <div className={rowStyle}>
+              {prefix}
+              {item3}
+              {postfix}
+            </div>
+          </>
+        )}
       </div>
-      <div role="row" className="text-center">
-        <div className="text-xs">{hotelBasicInfo.hotelKanaName}</div>
-        <div>{hotelBasicInfo.hotelName}</div>
-      </div>
-      <div role="row">{hotelBasicInfo.hotelSpecial}</div>
-      <div role="row">
-        {hotelBasicInfo.hotelMinCharge
-          ? `最低 "${hotelBasicInfo.hotelMinCharge.toLocaleString()}円"`
-          : ""}
-      </div>
-      <div role="row">
-        {hotelBasicInfo.latitude}/{hotelBasicInfo.longitude}
-      </div>
-      <div role="row">{hotelBasicInfo.postalCode}</div>
-      <div role="row">{hotelBasicInfo.address1}</div>
-      <div role="row">{hotelBasicInfo.address2}</div>
-      <div role="row">{hotelBasicInfo.telephoneNo}</div>
-      <div role="row">{hotelBasicInfo.access}</div>
-      <div role="row">{hotelBasicInfo.parkingInformation}</div>
-      <div role="row">{hotelBasicInfo.nearestStation}</div>
-      <div role="row">{hotelBasicInfo.reviewCount}</div>
-      <div role="row">{hotelBasicInfo.reviewAverage}</div>
-      <div role="row">{hotelBasicInfo.userReview}</div>
-    </div>
-  ) : null;
+    )
+  );
 };
 
 export default GridRow;

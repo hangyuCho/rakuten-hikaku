@@ -4,7 +4,7 @@ const handler = async (req: Request) => {
   console.log("searchParams : ", searchParams);
   console.log("hotelNo : ", hotelNo);
   const res: Response = await fetch(
-    `https://app.rakuten.co.jp/services/api/Travel/HotelDetailSearch/20170426?applicationId=${process.env.API_KEY}&format=json&hotelNo=${hotelNo}`
+    `https://app.rakuten.co.jp/services/api/Travel/HotelDetailSearch/20170426?applicationId=${process.env.API_KEY}&format=json&hotelNo=${hotelNo}&datumType=1`
   );
 
   if (res.ok) {

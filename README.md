@@ -9,6 +9,8 @@
 
 ## phase2: コンポーネントを見直しする必要がある。。(行が合わない；；)
 
+![](./phase2.png)
+
 ```bash
 # .env
 # rakuten api key
