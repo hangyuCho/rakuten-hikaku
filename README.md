@@ -18,5 +18,12 @@ API_KEY=
 ```
 
 ```bash
+# env-config.js
+module.exports = {
+  MAP_API_KEY: "",
+}
+```
+
+```bash
 pnpm dev
 ```

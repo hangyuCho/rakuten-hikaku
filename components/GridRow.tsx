@@ -1,8 +1,9 @@
 "use client";
+const env = require("./../env-config");
 import { HotelInfo, HotelBasicInfo } from "@/types";
 import Image from "next/image";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import Leaflet from "leaflet";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import BasicMap from "./BasicMap";
 
 interface GridRowProps {
   parentClassName?: string;
@@ -21,12 +22,16 @@ interface GridRowProps {
 const getItem = (columnItem: HotelInfo, itemName: string): string | number => {
   if (itemName == "latitude" || itemName == "longitude") {
     return columnItem && columnItem.hotelBasicInfo
-      ? `${columnItem.hotelBasicInfo["latitude"]},${columnItem.hotelBasicInfo["longitude"]}`
+      ? `${columnItem.hotelBasicInfo["latitude"]},${columnItem.hotelBasicInfo["longitude"]},${columnItem.hotelBasicInfo["hotelName"]}`
       : "";
   } else
     return columnItem && columnItem.hotelBasicInfo
       ? columnItem.hotelBasicInfo[itemName as keyof HotelBasicInfo]
       : "";
+};
+
+const MyGreatPlace = (props: any) => {
+  return <div>{props.text}</div>;
 };
 
 const GridRow = ({
@@ -52,9 +57,6 @@ const GridRow = ({
 
   const rowStyle = `w-1/4 text-center px-4 text-wrap h-[${rowHight ?? 10}px]`;
 
-  Leaflet.Marker.prototype.options.icon = Leaflet.icon({
-    iconUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  });
   return (
     item1 && (
       <div
@@ -80,27 +82,49 @@ const GridRow = ({
           </>
         ) : isMap ? (
           <>
-            <div className="text-center h-screen">{item1}</div>
+            <div className="w-2/3 h-72">
+              <BasicMap
+                centers={[
+                  {
+                    lat: Number(String(item1).split(",")[0]),
+                    lng: Number(String(item1).split(",")[1]),
+                  },
+                  {
+                    lat: Number(String(item2).split(",")[0]),
+                    lng: Number(String(item2).split(",")[1]),
+                  },
+                  {
+                    lat: Number(String(item3).split(",")[0]),
+                    lng: Number(String(item3).split(",")[1]),
+                  },
+                ]}
+                hotelNames={[
+                  String(item1).split(",")[2],
+                  String(item2).split(",")[2],
+                  String(item3).split(",")[2],
+                ]}
+              />
+            </div>
           </>
         ) : isImage ? (
           <>
             <Image
               className="object-contain w-1/4"
-              src={item1}
+              src={String(item1)}
               alt="item"
               height={imageHeight ?? 100}
               width={imageWidth ?? 200}
             />
             <Image
               className="object-contain w-1/4"
-              src={item2}
+              src={String(item2)}
               alt="item"
               height={imageHeight ?? 100}
               width={imageWidth ?? 200}
             />
             <Image
               className="object-contain w-1/4"
-              src={item3}
+              src={String(item3)}
               alt="item"
               height={imageHeight ?? 100}
               width={imageWidth ?? 200}

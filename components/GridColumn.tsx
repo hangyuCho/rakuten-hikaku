@@ -53,6 +53,8 @@ const GridColumn = ({ hotelInfos, className }) => {
         isImage={true}
       />
       <hr />
+      <GridRow hotelInfos={hotelInfos} itemName="latitude" isMap={true} />
+      <hr />
       <GridRow hotelInfos={hotelInfos} itemName="hotelKanaName" />
       <GridRow hotelInfos={hotelInfos} itemName="hotelName" />
       <hr />
@@ -70,8 +72,6 @@ const GridColumn = ({ hotelInfos, className }) => {
       />
       <hr />
       <GridRow hotelInfos={hotelInfos} itemName="hotelSpecial" />
-      <hr />
-      <GridRow hotelInfos={hotelInfos} itemName="latitude" isMap={true} />
       <hr />
       <GridRow hotelInfos={hotelInfos} itemName="nearestStation" />
       <hr />
